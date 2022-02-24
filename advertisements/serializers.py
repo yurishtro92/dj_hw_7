@@ -1,6 +1,5 @@
 from django.contrib.auth.models import User
-from rest_framework import serializers
-from django.core.exceptions import ValidationError
+from rest_framework import serializers, exceptions
 from advertisements.models import Advertisement
 
 
@@ -27,16 +26,14 @@ class AdvertisementSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         validated_data["creator"] = self.context["request"].user
-        return super().create(validated_data)
-
-    def validate(self, data):
         if len(Advertisement.objects.filter(creator_id=self.context["request"].user.id, status='OPEN')) > 10:
-             raise ValidationError("У пользователя более 10 открытых объявлений")
-        return data
+             raise exceptions.ValidationError("У пользователя более 10 открытых объявлений")
+        return super().create(validated_data)
 
     def update(self, instance, validated_data):
         if instance.creator == self.context["request"].user:
             return super().update(instance, validated_data)
         else:
-            raise ValidationError("Нет прав на изменение объявления")
-        return
+            raise exceptions.PermissionDenied
+            return
+

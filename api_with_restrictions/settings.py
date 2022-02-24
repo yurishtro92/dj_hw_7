@@ -86,8 +86,10 @@ REST_FRAMEWORK = {
         'anon': '10/minute',
     },
     'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend',
-                                ]
-
+                                ],
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticated',
+    ]
 }
 
 WSGI_APPLICATION = 'api_with_restrictions.wsgi.application'
