@@ -31,9 +31,13 @@ class AdvertisementSerializer(serializers.ModelSerializer):
         return super().create(validated_data)
 
     def update(self, instance, validated_data):
+        if instance.status == 'OPEN':
+            if len(Advertisement.objects.filter(creator_id=self.context["request"].user.id, status='OPEN')) > 10:
+                 raise exceptions.ValidationError("У пользователя более 10 открытых объявлений")
         if instance.creator == self.context["request"].user:
             return super().update(instance, validated_data)
         else:
             raise exceptions.PermissionDenied
             return
+
 
